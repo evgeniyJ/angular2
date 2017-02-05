@@ -1,0 +1,63 @@
+buildscript {
+    ext {
+        springBootVersion = '1.5.1.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("com.moowork.gradle:gradle-node-plugin:1.1.1")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'com.moowork.node'
+
+jar {
+    baseName = 'angular2'
+    version = '0.0.1-SNAPSHOT'
+}
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+    compile('org.springframework.boot:spring-boot-starter-actuator')
+    compile('org.springframework.boot:spring-boot-starter-web')
+    compile('io.springfox:springfox-swagger2:2.4.0')
+    compile('io.springfox:springfox-swagger-ui:2.4.0')
+    compileOnly('org.projectlombok:lombok')
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+task appNpmBuild(type: NpmTask) {
+  description = "Build UI"
+  workingDir = file("${project.projectDir}/client")
+  args = ['run', 'build']
+}
+
+//fix lint task
+task appLint(type: NpmTask) {
+  description = "Build UI"
+  workingDir = file("${project.projectDir}/client")
+  args = ['run', 'lint']
+}
+
+task appNpmInstall(type: NpmTask) {
+  description = "Installs dependencies from package.json"
+  workingDir = file("${project.projectDir}/client")
+  args = ['install']
+}
+
+appNpmBuild.dependsOn(appNpmInstall)
+
+build.dependsOn(appNpmBuild)
