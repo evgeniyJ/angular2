@@ -2,4 +2,5 @@
 .idea
 build
 client/node_modules/
+client/npm-debug.log
 src/main/resources/static/
