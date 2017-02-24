@@ -45,9 +45,8 @@ task appNpmBuild(type: NpmTask) {
   args = ['run', 'build']
 }
 
-//fix lint task
 task appLint(type: NpmTask) {
-  description = "Build UI"
+  description = "Verify UI"
   workingDir = file("${project.projectDir}/client")
   args = ['run', 'lint']
 }
@@ -58,6 +57,7 @@ task appNpmInstall(type: NpmTask) {
   args = ['install']
 }
 
-appNpmBuild.dependsOn(appNpmInstall)
+appLint.dependsOn(appNpmInstall)
+appNpmBuild.dependsOn(appLint)
 
 build.dependsOn(appNpmBuild)
