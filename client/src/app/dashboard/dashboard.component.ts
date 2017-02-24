@@ -3,7 +3,7 @@ import {Hero} from '../hero';
 import {HeroService} from '../hero.service';
 
 @Component({
-  selector: 'dashboard',
+  selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
