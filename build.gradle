@@ -9,6 +9,7 @@ buildscript {
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
         classpath("com.moowork.gradle:gradle-node-plugin:1.1.1")
+        classpath('se.transmode.gradle:gradle-docker:1.2')
     }
 }
 
@@ -17,10 +18,11 @@ apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'com.moowork.node'
+apply plugin: 'docker'
 
 jar {
     baseName = 'angular2'
-    version = '0.0.1-SNAPSHOT'
+    version = '0.0.1'
 }
 
 sourceCompatibility = 1.8
@@ -39,25 +41,33 @@ dependencies {
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 
-task appNpmBuild(type: NpmTask) {
-  description = "Build UI"
-  workingDir = file("${project.projectDir}/client")
-  args = ['run', 'build']
-}
-
-task appLint(type: NpmTask) {
-  description = "Verify UI"
-  workingDir = file("${project.projectDir}/client")
-  args = ['run', 'lint']
-}
-
 task appNpmInstall(type: NpmTask) {
-  description = "Installs dependencies from package.json"
-  workingDir = file("${project.projectDir}/client")
-  args = ['install']
+    description = "Installs dependencies from package.json"
+    workingDir = file("${project.projectDir}/client")
+    args = ['install']
 }
 
-appLint.dependsOn(appNpmInstall)
-appNpmBuild.dependsOn(appLint)
+task appLint(type: NpmTask, dependsOn: appNpmInstall) {
+    description = "Verify UI"
+    workingDir = file("${project.projectDir}/client")
+    args = ['run', 'lint']
+}
+
+task appNpmBuild(type: NpmTask, dependsOn: appLint) {
+    description = "Build UI"
+    workingDir = file("${project.projectDir}/client")
+    args = ['run', 'build']
+}
 
 build.dependsOn(appNpmBuild)
+
+task buildDocker(type: Docker, dependsOn: build) {
+    applicationName = jar.baseName
+    dockerfile = file('src/main/docker/Dockerfile')
+    doFirst {
+        copy {
+            from jar
+            into stageDir
+        }
+    }
+}

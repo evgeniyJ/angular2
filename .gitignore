@@ -1,5 +1,6 @@
 .gradle
 .idea
+angular2.iml
 build
 client/node_modules/
 client/npm-debug.log
